@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EPA 考官一致性演練 - 評量現況儀表板</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        /* 核心暖色系 */
+        :root {
+            --primary-color: #FF7F50; /* 珊瑚橘 - 主要暖色 */
+            --secondary-color: #FFA500; /* 橘色 - 輔助暖色 */
+            --light-bg: #FFF8E1; /* 淺奶油黃 - 活潑背景 */
+            --dark-text: #333333;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: '微軟正黑體', 'Microsoft JhengHei', sans-serif;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            padding-top: 20px;
+        }
+
+        .header-section {
+            background: linear-gradient(90deg, #FFD700 0%, var(--primary-color) 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 30px;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+        }
+
+        h1, h2 {
+            font-weight: 700;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s ease;
+            height: 100%; /* 確保卡片高度一致 */
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            background-color: var(--secondary-color);
+            color: white;
+            font-weight: 600;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+            padding: 1rem;
+        }
+
+        .chart-container {
+            padding: 10px;
+        }
+
+        /* 活潑生動的等級顏色 */
+        .level-color-4 { color: #28a745; font-weight: bold; } /* Level 4: 綠色 (勝任) */
+        .level-color-3c { color: #FFC107; font-weight: bold; } /* Level 3c: 琥珀 (需監督) */
+        .level-color-3b { color: #DC3545; font-weight: bold; } /* Level 3b: 紅色 (不勝任) */
+        
+        /* 儀表板分隔線 */
+        .section-divider {
+            border-top: 3px dashed var(--primary-color);
+            margin: 40px 0;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid">
+        <header class="header-section text-center">
+            <h1>✨ EPA 考官一致性演練 - 評量現況儀表板 ✨</h1>
+            <p class="lead">數據驅動，活潑展現：學員信賴等級、教師回饋與課程建議分析</p>
+        </header>
+
+        <main>
+            <div class="row mb-4">
+                <div class="col-lg-12">
+                    <h2 class="text-center mb-4"><span style="color: var(--primary-color);">🔥</span> 整體信賴等級分布概況</h2>
+                </div>
+                <div class="col-lg-6 col-md-12 mb-4">
+                    <div class="card">
+                        <div class="card-header text-center">🏆 總體任務評估 (所有考官) 分布</div>
+                        <div class="card-body chart-container" id="overallTaskChart"></div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-12 mb-4">
+                    <div class="card">
+                        <div class="card-header text-center">⭐ 平均信賴等級 (總覽)</div>
+                        <div class="card-body chart-container" id="averageLevelGauge"></div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="section-divider">
+
+            <div class="row mb-4">
+                <div class="col-lg-12">
+                    <h2 class="text-center mb-4"><span style="color: var(--primary-color);">💡</span> 關鍵 EPA 任務評分細項分析</h2>
+                </div>
+                <div class="col-lg-12 mb-4">
+                    <div class="card">
+                        <div class="card-header text-center">🚀 各項 EPA 任務平均信賴等級比較</div>
+                        <div class="card-body chart-container" id="epaDetailChart"></div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="section-divider">
+
+            <div class="row mb-4">
+                <div class="col-lg-12">
+                    <h2 class="text-center mb-4"><span style="color: var(--primary-color);">💖</span> 教師回饋與滿意度</h2>
+                </div>
+                <div class="col-lg-6 col-md-12 mb-4">
+                    <div class="card">
+                        <div class="card-header text-center">📊 教師對評量滿意程度分布</div>
+                        <div class="card-body chart-container" id="satisfactionChart"></div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-12 mb-4">
+                    <div class="card">
+                        <div class="card-header text-center">🗣️ 課程建議類型分布</div>
+                        <div class="card-body chart-container" id="courseTypeChart"></div>
+                    </div>
+                </div>
+            </div>
+            
+        </main>
+
+        <footer class="text-center py-3 mt-4" style="color: var(--dark-text); opacity: 0.7;">
+            <p>資料分析與視覺化生成 by AI 🤖</p>
+        </footer>
+    </div>
+
+    <script>
+        // 1. 內嵌 CSV 資料（為了方便在單一 HTML 檔案中運行）
+        // 數據來源：114.11.13 考官一致性演練(EPA) (回覆) (1).xlsx - 報名資料.csv
+        const rawData = [
+            "時間戳記,1.信賴等級評分 ( 下次遇到類似情境時，您認為此學員勝任程度如何) [確認營養照護需求，必要時與醫護團隊溝通],1.信賴等級評分 ( 下次遇到類似情境時，您認為此學員勝任程度如何) [收集營養評估客觀資訊],1.信賴等級評分 ( 下次遇到類似情境時，您認為此學員勝任程度如何) [按照醫院規範進行病人辨識，並表明自己身份],1.信賴等級評分 ( 下次遇到類似情境時，您認為此學員勝任程度如何) [進行訪談，以評估營養攝取量與照護資源],1.信賴等級評分 ( 下次遇到類似情境時，您認為此學員勝任程度如何) [判定營養診斷],1.信賴等級評分 ( 下次遇到類似情境時，您認為此學員勝任程度如何) [擬定營養治療目標，提供營養介入計畫],1.信賴等級評分 ( 下次遇到類似情境時，您認為此學員勝任程度如何) [完成營養病歷紀錄],1.信賴等級評分 ( 下次遇到類似情境時，您認為此學員勝任程度如何) [*整體任務評估*],\"2.質性回饋(臨床教師) ~請給予學員建議~\",3.教師對本次評量滿意程度,**針對本次工作坊，有什麼建議呢? ,**明年度課程，想聽什麼類型呢?(可複選喔~),**請依據第5題填答，推薦課程內容或人選~\n",
+            "2025-11-13 13:58:30,Level 3c,Level 3c,Level 4,Level 3c,Level 3c,Level 3c,Level 3c,Level 3c,\"雖然家屬問完家屬疑問，可以再幫他整理更清楚，另外現階段肉類無法咀嚼吞嚥，是否可以調整為剁碎或溫和飲食II或是濃粥\",7,無,\"A.專業提升(重症、兒科、IBD..., B.醫學人文(文學、音樂、電影、倫理、敘事醫學、哲學...\",兒科較不熟，可以請這類專家來上課。醫學人文的哲學感覺蠻有趣的，之前都沒有接觸過\n",
+            "2025-11-13 13:59:40,Level 4,Level 3c,Level 3c,Level 3b,Level 4,Level 3b,Level 3c,Level 3c,衛教手冊要讀熟，可運用衛教單張,7,影片清晰度,\"A.專業提升(重症、兒科、IBD..., B.醫學人文(文學、音樂、電影、倫理、敘事醫學、哲學...\",無\n",
+            "2025-11-13 14:00:15,Level 3c,Level 3b,Level 4,Level 3b,Level 3c,Level 3c,Level 3c,Level 3c,沒有確認團隊溝通，可多使用衛教單張,8,無,\"A.專業提升(重症、兒科、IBD..., B.醫學人文(文學、音樂、電影、倫理、敘事醫學、哲學...\",依專業選擇人選即可～～\n",
+            "2025-11-13 14:00:17,Level 3b,Level 3b,Level 3c,Level 3b,Level 3b,Level 3b,Level 3c,Level 3b,多跟病人家屬互動，給予衛教單張,7,無,\"A.專業提升(重症、兒科、IBD..., B.醫學人文(文學、音樂、電影、倫理、敘事醫學、哲學...\",醫學人文\n",
+            "2025-11-13 14:01:21,Level 3c,Level 3c,Level 4,Level 4,Level 3c,Level 4,Level 4,Level 4,整體表現流暢，衛教內容可更仔細說明,9,無,\"A.專業提升(重症、兒科、IBD..., B.醫學人文(文學、音樂、電影、倫理、敘事醫學、哲學...\",無\n",
+            "2025-11-13 14:02:40,Level 4,Level 4,Level 4,Level 4,Level 4,Level 4,Level 4,Level 4,無,9,無,\"A.專業提升(重症、兒科、IBD..., B.醫學人文(文學、音樂、電影、倫理、敘事醫學、哲學...\",無\n",
+            "2025-11-13 14:03:19,Level 4,Level 4,Level 4,Level 4,Level 4,Level 4,Level 4,Level 4,整體表現流暢，衛教內容可更仔細說明,9,無,\"A.專業提升(重症、兒科、IBD..., B.醫學人文(文學、音樂、電影、倫理、敘事醫學、哲學...\",重症、醫學倫理\n",
+            "2025-11-13 14:03:59,Level 3c,Level 3c,Level 3c,Level 3c,Level 3c,Level 3c,Level 3c,Level 3c,可以再清楚說明飲食建議,8,無,\"A.專業提升(重症、兒科、IBD..., B.醫學人文(文學、音樂、電影、倫理、敘事醫學、哲學...\",醫學人文\n",
+            "2025-11-13 14:04:30,Level 3c,Level 3c,Level 4,Level 4,Level 3c,Level 4,Level 4,Level 4,整體表現流暢，衛教內容可更仔細說明,9,無,\"A.專業提升(重症、兒科、IBD..., B.醫學人文(文學、音樂、電影、倫理、敘事醫學、哲學...\",無\n",
+            "2025-11-13 14:04:47,Level 3c,Level 3c,Level 3c,Level 3c,Level 3c,Level 3c,Level 3c,Level 3c,沒有確認團隊溝通，可多使用衛教單張,8,無,\"A.專業提升(重症、兒科、IBD..., B.醫學人文(文學、音樂、電影、倫理、敘事醫學、哲學...\",兒科\n",
+            "2025-11-13 14:04:54,Level 4,Level 4,Level 4,Level 4,Level 4,Level 4,Level 4,Level 4,無,9,無,\"A.專業提升(重症、兒科、IBD..., B.醫學人文(文學、音樂、電影、倫理、敘事醫學、哲學...\",重症\n",
+            "2025-11-13 14:05:40,Level 4,Level 4,Level 4,Level 4,Level 4,Level 4,Level 4,Level 4,無,9,無,\"A.專業提升(重症、兒科、IBD..., B.醫學人文(文學、音樂、電影、倫理、敘事醫學、哲學...\",無\n",
+            "2025-11-13 14:05:59,Level 4,Level 4,Level 4,Level 4,Level 4,Level 4,Level 4,Level 4,無,9,無,\"A.專業提升(重症、兒科、IBD..., B.醫學人文(文學、音樂、電影、倫理、敘事醫學、哲學...\",無\n",
+            "2025-11-13 14:06:50,Level 3c,Level 3c,Level 3c,Level 3c,Level 3c,Level 3c,Level 3c,Level 3c,多跟病人家屬互動，給予衛教單張,7,無,\"A.專業提升(重症、兒科、IBD..., B.醫學人文(文學、音樂、電影、倫理、敘事醫學、哲學...\",無\n"
+        ];
+        
+        // 2. 資料清理與轉換
+        const lines = rawData.join('').trim().split('\n');
+        const headerRow = lines[0].split(',').map(h => h.replace(/\"/g, '').trim());
+        const dataRows = lines.slice(1).map(line => {
+            // 使用正規表達式處理帶引號的欄位，確保逗號不被誤判
+            const values = [];
+            let current = '';
+            let inQuotes = false;
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    values.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            values.push(current.trim()); // 加上最後一個欄位
+            return values;
+        });
+
+        // 建立一個資料處理函數，將 Level 轉換為數字
+        const levelToNum = (level) => {
+            switch (level.toLowerCase()) {
+                case 'level 4': return 4;
+                case 'level 3c': return 3.5;
+                case 'level 3b': return 3.0;
+                default: return 0;
+            }
+        };
+
+        // 3. 圖表數據準備
+        
+        // --- 3.1 總體任務評估 (最後一項評分) ---
+        const overallTaskCol = headerRow.findIndex(h => h.includes('*整體任務評估*'));
+        const overallTaskScores = dataRows.map(row => row[overallTaskCol]);
+        
+        const overallCounts = overallTaskScores.reduce((acc, level) => {
+            acc[level] = (acc[level] || 0) + 1;
+            return acc;
+        }, {});
+        
+        const overallData = {
+            levels: Object.keys(overallCounts).sort((a, b) => levelToNum(a) - levelToNum(b)),
+            counts: Object.keys(overallCounts).sort((a, b) => levelToNum(a) - levelToNum(b)).map(k => overallCounts[k])
+        };
+
+        // --- 3.2 EPA 細項任務平均等級 ---
+        const epaCols = headerRow.slice(1, overallTaskCol); // 排除時間戳記，取到整體任務前
+        
+        const epaAverages = epaCols.map((col, index) => {
+            const scores = dataRows.map(row => levelToNum(row[index + 1])); // +1 因為從第二欄開始
+            const sum = scores.reduce((a, b) => a + b, 0);
+            return {
+                task: col.split('[')[1].replace(']', '').trim(), // 擷取方括號內的任務名稱
+                average: sum / scores.length
+            };
+        });
+
+        // --- 3.3 教師滿意度 ---
+        const satisfactionCol = headerRow.findIndex(h => h.includes('3.教師對本次評量滿意程度'));
+        const satisfactionScores = dataRows.map(row => parseInt(row[satisfactionCol]));
+        
+        const satisfactionCounts = satisfactionScores.reduce((acc, score) => {
+            acc[score] = (acc[score] || 0) + 1;
+            return acc;
+        }, {});
+        
+        const satisfactionData = {
+            scores: Object.keys(satisfactionCounts).map(Number).sort((a, b) => a - b),
+            counts: Object.keys(satisfactionCounts).map(Number).sort((a, b) => a - b).map(k => satisfactionCounts[k])
+        };
+
+        // --- 3.4 課程建議類型 ---
+        const courseTypeCol = headerRow.findIndex(h => h.includes('**明年度課程，想聽什麼類型呢?'));
+        const courseTypeResponses = dataRows.map(row => row[courseTypeCol]);
+        
+        const typeCounts = {
+            'A.專業提升': 0,
+            'B.醫學人文': 0
+        };
+        
+        courseTypeResponses.forEach(response => {
+            if (response.includes('A.專業提升')) {
+                typeCounts['A.專業提升']++;
+            }
+            if (response.includes('B.醫學人文')) {
+                typeCounts['B.醫學人文']++;
+            }
+        });
+
+
+        // 4. Plotly 圖表繪製函數
+
+        // 4.1 總體任務評估長條圖
+        function plotOverallTaskChart() {
+            const data = [{
+                x: overallData.levels,
+                y: overallData.counts,
+                type: 'bar',
+                marker: {
+                    color: overallData.levels.map(level => {
+                        if (level === 'Level 4') return '#28a745'; // 綠色
+                        if (level === 'Level 3c') return '#FFC107'; // 琥珀
+                        if (level === 'Level 3b') return '#DC3545'; // 紅色
+                        return '#6C757D';
+                    })
+                },
+                hovertemplate: '信賴等級: %{x}<br>次數: %{y}<extra></extra>'
+            }];
+
+            const layout = {
+                title: false, // 標題移至 Card Header
+                xaxis: { title: '信賴等級 (Level)', fixedrange: true },
+                yaxis: { title: '次數', fixedrange: true, tick0: 0, dtick: 1, rangemode: 'tozero' },
+                margin: { l: 40, r: 20, t: 20, b: 50 },
+                plot_bgcolor: 'white',
+                paper_bgcolor: 'white'
+            };
+
+            Plotly.newPlot('overallTaskChart', data, layout, { responsive: true, displayModeBar: false });
+        }
+
+        // 4.2 平均信賴等級儀表
+        function plotAverageLevelGauge() {
+            const allScores = dataRows.flatMap((row, rowIndex) => 
+                row.slice(1, overallTaskCol).map(level => levelToNum(level))
+            ).filter(score => score > 0);
+            
+            const totalAverage = allScores.reduce((a, b) => a + b, 0) / allScores.length;
+            const avgDisplay = totalAverage.toFixed(2);
+
+            const data = [{
+                type: 'indicator',
+                mode: 'gauge+number',
+                value: totalAverage,
+                title: { text: `總平均分數: ${avgDisplay}` },
+                gauge: {
+                    axis: { range: [3, 4], tickwidth: 1, tickcolor: "darkblue" },
+                    bar: { color: "#FF7F50" }, // 珊瑚橘
+                    bgcolor: "white",
+                    steps: [
+                        { range: [3.0, 3.2], color: "#DC3545" }, // Level 3b 區間
+                        { range: [3.2, 3.6], color: "#FFC107" }, // Level 3c 區間
+                        { range: [3.6, 4.0], color: "#28a745" }  // Level 4 區間
+                    ],
+                    threshold: {
+                        line: { color: "red", width: 4 },
+                        thickness: 0.75,
+                        value: totalAverage
+                    }
+                }
+            }];
+
+            const layout = {
+                margin: { t: 50, b: 20, l: 30, r: 30 },
+                paper_bgcolor: 'white',
+                font: { color: var('--dark-text'), family: '微軟正黑體' }
+            };
+
+            Plotly.newPlot('averageLevelGauge', data, layout, { responsive: true, displayModeBar: false });
+        }
+
+        // 4.3 EPA 細項任務長條圖
+        function plotEpaDetailChart() {
+            const sortedAverages = epaAverages.sort((a, b) => a.average - b.average);
+
+            const data = [{
+                x: sortedAverages.map(d => d.average),
+                y: sortedAverages.map(d => d.task),
+                type: 'bar',
+                orientation: 'h',
+                marker: {
+                    color: sortedAverages.map(d => {
+                        if (d.average >= 3.6) return '#28a745'; // Level 4 區間 (綠色)
+                        if (d.average >= 3.2) return '#FFC107'; // Level 3c 區間 (琥珀)
+                        return '#DC3545'; // Level 3b 區間 (紅色)
+                    })
+                },
+                text: sortedAverages.map(d => d.average.toFixed(2)),
+                textposition: 'outside',
+                hovertemplate: '任務: %{y}<br>平均等級: %{x:.2f}<extra></extra>'
+            }];
+
+            const layout = {
+                title: false,
+                xaxis: { title: '平均信賴等級 (3.0-4.0)', range: [3.0, 4.0], fixedrange: true },
+                yaxis: { automargin: true, fixedrange: true },
+                margin: { l: 200, r: 20, t: 20, b: 50 },
+                plot_bgcolor: 'white',
+                paper_bgcolor: 'white',
+                height: 500 // 確保所有標籤都能顯示
+            };
+
+            Plotly.newPlot('epaDetailChart', data, layout, { responsive: true, displayModeBar: false });
+        }
+
+        // 4.4 教師滿意度圓餅圖
+        function plotSatisfactionChart() {
+            const data = [{
+                values: satisfactionData.counts,
+                labels: satisfactionData.scores.map(s => `${s} 分 (滿意度)`),
+                type: 'pie',
+                hole: 0.4, // 甜甜圈圖
+                marker: {
+                    colors: ['#FFD700', '#FFA500', '#FF7F50', '#FA8072', '#E9967A', '#F08080', '#CD5C5C'] // 暖色系漸變
+                },
+                hovertemplate: '分數: %{label}<br>次數: %{value} (%{percent})<extra></extra>'
+            }];
+
+            const layout = {
+                title: false,
+                margin: { t: 0, b: 0, l: 0, r: 0 },
+                paper_bgcolor: 'white',
+                showlegend: true
+            };
+
+            Plotly.newPlot('satisfactionChart', data, layout, { responsive: true, displayModeBar: false });
+        }
+        
+        // 4.5 課程建議類型長條圖
+        function plotCourseTypeChart() {
+             const data = [{
+                x: Object.keys(typeCounts),
+                y: Object.values(typeCounts),
+                type: 'bar',
+                marker: {
+                    color: ['#FFC107', '#FFA500'] // 專業提升用琥珀，人文用橘色
+                },
+                hovertemplate: '課程類型: %{x}<br>建議次數: %{y}<extra></extra>'
+            }];
+
+            const layout = {
+                title: false,
+                xaxis: { title: '課程類型', fixedrange: true },
+                yaxis: { title: '建議次數', fixedrange: true, tick0: 0, dtick: 1, rangemode: 'tozero' },
+                margin: { l: 40, r: 20, t: 20, b: 50 },
+                plot_bgcolor: 'white',
+                paper_bgcolor: 'white'
+            };
+
+            Plotly.newPlot('courseTypeChart', data, layout, { responsive: true, displayModeBar: false });
+        }
+
+
+        // 5. 頁面加載完成後繪製所有圖表
+        window.onload = function() {
+            plotOverallTaskChart();
+            plotAverageLevelGauge();
+            plotEpaDetailChart();
+            plotSatisfactionChart();
+            plotCourseTypeChart();
+        };
+
+        // 確保視窗大小改變時圖表響應
+        window.onresize = function() {
+            Plotly.Plots.resize('overallTaskChart');
+            Plotly.Plots.resize('averageLevelGauge');
+            Plotly.Plots.resize('epaDetailChart');
+            Plotly.Plots.resize('satisfactionChart');
+            Plotly.Plots.resize('courseTypeChart');
+        };
+
+    </script>
+</body>
+</html>
